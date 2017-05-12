@@ -37,6 +37,17 @@ public class SmartMeterService {
 		return this.dao.selectSmartMeterReadingsAgg(meterNo, aggregateType);
 	}
 	
+	public List<SmartMeterReadingAgg> getReadingAgg (int meterNo, String aggregateType, int days){
+		
+		return this.dao.selectSmartMeterReadingsAgg(meterNo, aggregateType, days);
+	}
+	
+	public List<SmartMeterReadingAgg> getReadingAggByDate (int meterNo, String aggregateType, Date from, Date to){
+		
+		return this.dao.selectSmartMeterReadingsAgg(meterNo, aggregateType, from, to);
+	}
+
+	
 	public static void main(String args[]){
 		new SmartMeterService();
 	}

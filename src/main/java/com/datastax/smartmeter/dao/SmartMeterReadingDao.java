@@ -49,7 +49,8 @@ public class SmartMeterReadingDao {
 	private static final String SELECT_FROM_METER = "select meter_id, date, readings, status, units from " + smartMeter + " where meter_id = ? limit 1";
 	private static final String SELECT_FROM_READINGS = "select meter_id, date, source_id, readings from " + smartMeterReading + " where meter_id = ? limit ?";
 	private static final String SELECT_FROM_READINGS_BY_DATE = "select meter_id, date, source_id, readings from " + smartMeterReading + " where meter_id = ? and date > ? and date <= ?";
-	private static final String SELECT_FROM_READINGS_AGG = "select meter_id, aggregatetype, date, source_id, readings from " + smartMeterReadingAgg + " where meter_id = ? and aggregatetype = ? limit ?";		
+	private static final String SELECT_FROM_READINGS_AGG = "select meter_id, aggregatetype, date, source_id, readings from " + smartMeterReadingAgg + " where meter_id = ? and aggregatetype = ? limit ?";
+	private static final String SELECT_FROM_READINGS_AGG_BY_DATE = "select meter_id, aggregatetype, date, source_id, readings from " + smartMeterReadingAgg + " where meter_id = ? and aggregatetype = ? and date > ? and date <= ?";
 	
 	private PreparedStatement insertStmtBillingCylce;
 	private PreparedStatement insertStmtMeter;
@@ -60,6 +61,7 @@ public class SmartMeterReadingDao {
 	private PreparedStatement selectStmtReading;
 	private PreparedStatement selectStmtReadingByDate;
 	private PreparedStatement selectStmtReadingAgg;
+	private PreparedStatement selectStmtReadingAggByDate;
 	
 	private ObjectMapper jsonMapper = new ObjectMapper();
 	private TypeReference<HashMap<Integer,Double>> typeRef = new TypeReference<HashMap<Integer,Double>>() {};
@@ -69,7 +71,6 @@ public class SmartMeterReadingDao {
 	public SmartMeterReadingDao(String[] contactPoints) {
 
 		Cluster cluster = Cluster.builder()
-				.withLoadBalancingPolicy(new TokenAwarePolicy(new DCAwareRoundRobinPolicy()))
 				.addContactPoints(contactPoints).build();
 		
 		this.session = cluster.connect();
@@ -83,7 +84,8 @@ public class SmartMeterReadingDao {
 		this.selectStmtMeter = session.prepare(SELECT_FROM_METER);		
 		this.selectStmtReading = session.prepare(SELECT_FROM_READINGS);		
 		this.selectStmtReadingByDate = session.prepare(SELECT_FROM_READINGS_BY_DATE);		
-		this.selectStmtReadingAgg = session.prepare(SELECT_FROM_READINGS_AGG);		
+		this.selectStmtReadingAgg = session.prepare(SELECT_FROM_READINGS_AGG);
+		this.selectStmtReadingAggByDate = session.prepare(SELECT_FROM_READINGS_AGG_BY_DATE);
 	}
 
 	public SmartMeter selectSmartMeter(int meterNo){
@@ -221,7 +223,7 @@ public class SmartMeterReadingDao {
 	public List<SmartMeterReadingAgg> selectSmartMeterReadingsAgg(int meterNo, String aggregateType){
 		return this.selectSmartMeterReadingsAgg(meterNo, aggregateType, 10000);
 	}
-	
+
 	public List<SmartMeterReadingAgg> selectSmartMeterReadingsAgg(int meterNo, String aggregateType, int limit){
 		BoundStatement bs = new BoundStatement(selectStmtReadingAgg);
 		ResultSet resultSet = session.execute(bs.bind(meterNo, aggregateType, limit));
@@ -241,7 +243,26 @@ public class SmartMeterReadingDao {
 			return readings;
 		}
 	}
-
+	
+	public List<SmartMeterReadingAgg> selectSmartMeterReadingsAgg(int meterNo, String aggregateType, Date from, Date to){
+		BoundStatement bs = new BoundStatement(selectStmtReadingAggByDate);
+		ResultSet resultSet = session.execute(bs.bind(meterNo, aggregateType, from, to));
+		
+		List <SmartMeterReadingAgg> readings = new ArrayList<>();
+		
+		List<Row> rows = resultSet.all();
+		if (rows==null){
+			throw new RuntimeException("Smart meter " + meterNo + " and aggregate type " + aggregateType + " not available.");
+		}else{
+			
+			for (Row row : rows){
+				readings.add(new SmartMeterReadingAgg(row.getInt("meter_id"), row.getString("aggregatetype"), row.getTimestamp("date"),  
+					row.getString("source_id"), row.getDouble("readings")));
+			}
+			
+			return readings;
+		}
+	}
 
 	private String getJsonReadings(SmartMeterReading reading) {
 		try {
