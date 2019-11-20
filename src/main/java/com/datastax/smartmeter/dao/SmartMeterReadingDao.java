@@ -34,7 +34,7 @@ public class SmartMeterReadingDao {
 	private static Logger logger = LoggerFactory.getLogger(SmartMeterReadingDao.class);	
 
 	private Session session;
-	private static String keyspaceName = "datastax_iot_demo";
+	private static String keyspaceName = "iot_smart_meter";
 	private static String smartMeter = keyspaceName + ".smart_meter";
 	private static String smartMeterReading = keyspaceName + ".smart_meter_reading";
 	private static String smartMeterReadingAgg = keyspaceName + ".smart_meter_reading_aggregates";

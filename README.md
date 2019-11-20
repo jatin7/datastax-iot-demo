@@ -18,14 +18,14 @@ To create the schema, run the following
 
 	mvn clean compile exec:java -Dexec.mainClass="com.datastax.demo.SchemaSetup" -DcontactPoints=localhost
 		
-##Insert Meter Reading
+## Insert Meter Reading
 To insert some meter readings, run the following 
 	
 	mvn clean compile exec:java -Dexec.mainClass="com.datastax.smartmeter.Main" -DcontactPoints=localhost
 	
 You can use -DnoOfCustomers and -DnoOfDays to change the no of customer readings and the no of days (in the past) to be inserted. Defaults are 100 and 180 respectively.
 
-##Verify Meter Reading in DataStax using CQL
+## Verify Meter Reading in DataStax using CQL
 To view the data using cqlsh, run
 
 	select * from smart_meter_reading where meter_id = 1;
@@ -44,7 +44,7 @@ To run an DAY aggregation, which sums the usage for a day, run
 
 You can use -DnoOfCustomers and -DnoOfDays to change the no of customer readings and the no of days (in the past) to be aggregated. Defaults are 100 and 180 respectively.
 
-##Verify Aggregation 
+## Verify Aggregation 
 To view the data using cqlsh, run
 
 	select * from smart_meter_reading_aggregates where meter_id = 1 and aggregatetype ='DAY';

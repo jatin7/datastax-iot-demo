@@ -1,1 +1,1 @@
-drop keyspace datastax_iot_demo;
+drop keyspace iot_smart_meter;
