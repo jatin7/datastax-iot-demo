@@ -4,7 +4,7 @@ This is a small demo to show how to insert meter readings for a smart reader. No
 a no of readings per day. 
 
 ## Schema Setup
-Note : This will drop the keyspace "datastax_iot_demo" and create a new one. All existing data will be lost. 
+Note : This will drop the keyspace "dse_iot_demo" and create a new one. All existing data will be lost. 
 
 To specify contact points use the contactPoints command line parameter e.g. 
 
